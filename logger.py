@@ -1,4 +1,3 @@
-from logging import DEBUG
 import logging
 
 
@@ -35,19 +34,6 @@ def get_logger(name="myapp"):
         logger.addHandler(handler)
         logger.propagate = False
     return logger
-
-
-def error_format(e):
-    logger = get_logger()
-    # ハンドラは追加しない。必要ならメッセージだけ整形
-    logger.error("ERRORが発生しました %s", e, exc_info=True)
-    return logger
-
-
-# def output_error(level=DEBUG):
-#     logger = get_logger()
-#     logger.setLevel(level)
-#     return logger
 
 
 # 動作テスト
