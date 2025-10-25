@@ -14,7 +14,7 @@ class GoogleSheetClient:
         self.client = self._authorize()
         self.sheet = self.client.open_by_key(sheet_id).sheet1
 
-    def _authorize(self):
+    def _authorize(self) -> gspread.Client:
         try:
             self.logger.debug(f"ログイン認証処理、開始")
             scopes = [
@@ -30,7 +30,7 @@ class GoogleSheetClient:
             self.logger.error(f"ログイン認証処理、失敗: \n{e}")
             raise
 
-    def get_titles(self):
+    def get_titles(self) -> list[str]:
         try:
             self.logger.debug(f"スプシタイトル、リスト化、開始")
             """シート全体をDataFrameで取得"""
@@ -38,11 +38,11 @@ class GoogleSheetClient:
             if not data:
                 self.logger.warning("スプシが空です。空のリストを返します。")
                 return []
-            self.logger.debug(f"スプシタイトル、リスト化、開始")
+            self.logger.debug(f"スプシタイトル、リスト化、完了")
             return data[0]  # ← タイトル行（1行目）をリストで返す
             # return pd.DataFrame(data[1:], columns=data[0])
         except Exception as e:
-            self.logger.error(f"プシタイトル、リスト化、失敗: \n{e}")
+            self.logger.error(f"スプシタイトル、リスト化、失敗: \n{e}")
             raise
 
 
@@ -58,9 +58,9 @@ def main():
         raise RuntimeError("環境変数 GOOGLE_SHEET_ID が未設定です。")
 
     client = GoogleSheetClient(credentials_path, sheet_id, logger)
-    df = client.get_titles()
-    print(df)
-    print(type(df))
+    titles = client.get_titles()
+    print(titles)
+    print(type(titles))
 
 
 if __name__ == "__main__":
