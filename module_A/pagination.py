@@ -1,11 +1,14 @@
+"""このモジュールの目的：次ページに進む（ページネーション）処理"""
+
 import time
 from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 from selenium.webdriver.common.by import By
 
 
 def _click_if_visible(driver, el):
+    # この関数の目的：ページ上の要素（リンクやボタン）を安全にクリックする
     try:
-        driver.execute_sctipt("arguments[0].scrollIntoView({block: 'center'})", el)
+        driver.execute_script("arguments[0].scrollIntoView({block: 'center'})", el)
         el.click()
         return True
     except Exception:
@@ -17,6 +20,7 @@ def _click_if_visible(driver, el):
 
 
 def wait_for_page_change(driver, wait, timeout: int = 10):
+    # この関数の目的：ページ遷移が完了するまで待つ
     old_url = driver.current_url
     end = time.time() + timeout
     time.sleep(0.3)
@@ -35,6 +39,8 @@ def wait_for_page_change(driver, wait, timeout: int = 10):
 
 
 def goto_next_page(driver, wait, logger=None) -> bool:
+    # この関数の目的：「次ページ」を探してクリック、またはURLを書き換えて進む
+
     # A. 一般的な次へ候補（SeleniumのCSSとして有効なもののみ）
     candidates = [
         "a[rel='next']",
@@ -53,7 +59,7 @@ def goto_next_page(driver, wait, logger=None) -> bool:
                 if el.is_displayed() and _click_if_visible(driver, el):
                     wait_for_page_change(driver, wait)
                     if logger:
-                        logger.debug(f"次のページ遷移: {sel}")
+                        logger.debug(f"次ページ遷移: {sel}")
                     return True
         except Exception:
             pass
@@ -64,7 +70,7 @@ def goto_next_page(driver, wait, logger=None) -> bool:
         for a in anchors:
             text = (a.text or "").strip()
             if text in ("次へ", "Next", "次のページ", "Next »", ">", "›"):
-                if a.is_displayef() and _click_if_visible(driver, a):
+                if a.is_displayed() and _click_if_visible(driver, a):
                     wait_for_page_change(driver, wait)
                     if logger:
                         logger.debug("次ページ遷移：テキスト一致")

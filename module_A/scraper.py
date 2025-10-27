@@ -1,3 +1,5 @@
+"""このモジュールは、某サイトから案件一覧をページを跨いで収集するための司令塔モジュール"""
+
 from typing import List, Dict, Optional
 from selenium import webdriver
 from selenium.webdriver.remote.webdriver import WebDriver
@@ -35,12 +37,16 @@ class FreelanceHubScraper:
 
     # 公開API
     def open(self):
-        self.logger.debug("ページオーペン開始")
+        # この関数の目的：指定URLを開く
+        self.logger.debug("ページオープン開始")
         self.driver.get(self.base_url)
         self.logger.debug("ページオープン完了")
 
     def collect_projects(self) -> List[Dict[str, Optional[str]]]:
+        # この関数の目的：指定URLを開く
         wait_cards(self.wait, SEL_CARD, logger=self.logger)
+        # wait_cards() → 「カードが全て表示されるまで待機」
+        # SEL_CARD → 定数で指定された .ProjectCard 要素を取得
         cards = self.driver.find_elements(By.CSS_SELECTOR, SEL_CARD)
         self.logger.debug(f"cards={len(cards)}")
 
@@ -62,12 +68,13 @@ class FreelanceHubScraper:
                     self.logger.debug(f"[{idx}] 詳細ページ補完失敗: {e}")
                     entry_url = None
 
-            projects.append({"title": title, "link:": entry_url})
+            projects.append({"title": title, "link": entry_url})
 
         self.logger.debug(f"取得プロジェクト数={len(projects)}")
         return projects
 
     def collect_all_projects(self, max_pages: int | None = None):
+        # この関数の目的：ページネーションを自動でたどって全ページ分の案件を収集する
         all_projects, seen = [], set()
         page_count = 0
         while True:

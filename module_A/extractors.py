@@ -24,23 +24,24 @@ def resolve_entry_from_detail(driver, wait, detail_url: str):
     from selenium.webdriver.common.by import By
     from selenium.webdriver.support import expected_conditions as EC
 
-    original = driver.curren_window_handle
+    original = driver.current_window_handle
+    driver.excute_script("window.open(argments[0]);", detail_url)
     driver.switch_to.window(driver.window_handles[-1])
     try:
         wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "body")))
         anchors = driver.find_elements(
             By.CSS_SELECTOR, "a[href*='/entry_signup/input/project/']"
         )
-        from module_A.constants import PATTERN_ENTRY
-        from urllib.parse import urljoin
+        # from module_A.constants import PATTERN_ENTRY
+        # from urllib.parse import urljoin
 
         for a in anchors:
-            raw = (a.get_attribut("href") or "").strip()
+            raw = (a.get_attribute("href") or "").strip()
             href = urljoin(detail_url, raw)
             if PATTERN_ENTRY.match(href):
                 return href
-            return href
+            # return href
         return None
     finally:
         driver.close()
-        driver.swich_to.window(original)
+        driver.switch_to.window(original)
