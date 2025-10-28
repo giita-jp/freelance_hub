@@ -28,7 +28,7 @@ def wait_for_page_change(driver, wait, timeout: int = 10):
         time.sleep(0.2)
         if driver.current_url != old_url:
             return
-    # SPA対策（軽い待機）
+    # SPA(=Single Page Application)対策（軽い待機）
     from selenium.webdriver.support import expected_conditions as EC
 
     driver.execute_script("void(0);")
@@ -51,6 +51,8 @@ def goto_next_page(driver, wait, logger=None) -> bool:
         ".Pagination a[rel='next']",
         ".Pagination a[aria-label='Next']",
         ".Pagination a[aria-label='次へ']",
+        "a.Pagination_NextLink",
+        "a.Pagination_Link.Pagination_NextLink",
     ]
     for sel in candidates:
         try:
@@ -80,9 +82,12 @@ def goto_next_page(driver, wait, logger=None) -> bool:
 
     # C. ?page=N を自動インクリメント
     try:
-        current = driver.current_url
-        parsed = urlparse(current)
-        qs = parse_qs(parsed.query)
+        current = driver.current_url  # 現在のURLを取得
+        parsed = urlparse(
+            current
+        )  # URLを分解（scheme, netloc, path, params, query, fragment）
+        qs = parse_qs(parsed.query)  # クエリ文字列をdict化
+        # (例) qs = {"page":["3"]}
         page = 1
         if "page" in qs and qs["page"]:
             try:
@@ -95,13 +100,14 @@ def goto_next_page(driver, wait, logger=None) -> bool:
             {k: v[0] if isinstance(v, list) else v for k, v in qs.items()}
         )
         new_url = urlunparse(
+            # "https://freelance-hub.jp/project/skill/7/?page=3"の場合
             (
-                parsed.scheme,
-                parsed.netloc,
-                parsed.path,
-                parsed.params,
-                new_query,
-                parsed.fragment,
+                parsed.scheme,  # scheme='https'
+                parsed.netloc,  # netloc='freelance-hub.jp'
+                parsed.path,  # path='/project/skill/7/'
+                parsed.params,  # params=''
+                new_query,  # query='page=3
+                parsed.fragment,  # fragment=''
             )
         )
         if new_url != current:

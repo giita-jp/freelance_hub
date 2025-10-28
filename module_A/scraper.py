@@ -73,7 +73,9 @@ class FreelanceHubScraper:
         self.logger.debug(f"取得プロジェクト数={len(projects)}")
         return projects
 
-    def collect_all_projects(self, max_pages: int | None = None):
+    def collect_all_projects(
+        self, max_pages: int | None = None
+    ) -> List[Dict[str, Optional[str]]]:
         # この関数の目的：ページネーションを自動でたどって全ページ分の案件を収集する
         all_projects, seen = [], set()
         page_count = 0

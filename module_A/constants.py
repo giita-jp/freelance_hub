@@ -19,3 +19,14 @@ SEL_ANCHORS_IN_CARD = (
     "a[href*='/entry_signup/input/project/'], "
     "a[href^='/project/']"
 )
+
+""""
+パターン                             意味
+^                                   文字列の先頭にマッチ
+https://freelance-hub\.jp/          固定のURLドメイン（ドットは \. でエスケープ）
+entry_signup/input/project/         応募ページの固定パス
+\d+                                 数字が1文字以上（=プロジェクトID部分）
+/?                                  末尾の / があってもなくてもOK
+$                                   文字列の終端にマッチ
+
+"""
