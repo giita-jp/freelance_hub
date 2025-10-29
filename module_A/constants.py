@@ -8,7 +8,12 @@ PATTERN_ENTRY = re.compile(
     r"^https://freelance-hub\.jp/entry_signup/input/project/\d+/?$"
 )
 PATTERN_DETAIL = re.compile(r"^https://freelance-hub\.jp/project/\d+/?$")
+# ^ : 文字列の 先頭 を表す
+# $ : 文字列の 末尾 を表す
+# .（ドット）は正規表現では「任意の1文字」を意味する
+# . を普通のドットとして扱いたいので \. と書く
 # \d+ は「数字1文字以上」という意味
+# / : 直前の文字が あってもなくてもOK
 # /?$ は「最後の / があってもなくてもOK」
 
 SEL_CARD = ".ProjectCard"
@@ -19,14 +24,3 @@ SEL_ANCHORS_IN_CARD = (
     "a[href*='/entry_signup/input/project/'], "
     "a[href^='/project/']"
 )
-
-""""
-パターン                             意味
-^                                   文字列の先頭にマッチ
-https://freelance-hub\.jp/          固定のURLドメイン（ドットは \. でエスケープ）
-entry_signup/input/project/         応募ページの固定パス
-\d+                                 数字が1文字以上（=プロジェクトID部分）
-/?                                  末尾の / があってもなくてもOK
-$                                   文字列の終端にマッチ
-
-"""
