@@ -8,6 +8,7 @@ from selenium.webdriver.common.by import By
 def _click_if_visible(driver, el):
     # この関数の目的：ページ上の要素（リンクやボタン）を安全にクリックする
     try:
+        # 要素 el がブラウザ画面の中央に見えるようにスクロール
         driver.execute_script("arguments[0].scrollIntoView({block: 'center'})", el)
         el.click()
         return True

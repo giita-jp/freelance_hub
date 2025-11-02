@@ -10,8 +10,14 @@ def main():
             scraper.open()
             projects = scraper.collect_all_projects(max_pages=5)  # Noneで全ページ
             logger.debug("出力開始")
-            for p in projects:
-                print(p)
+            # {案件, 詳細}をすべて見たい場合
+            # for p in projects:
+            #     print(p)
+
+            # 案件のすべてを見たい場合
+            titles = [p["title"] for p in projects]
+            print(titles)
+
             logger.debug("出力完了")
     except Exception as e:
         logger.error(f"main内エラー: {e}")

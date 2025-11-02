@@ -208,5 +208,5 @@ __marimo__/
 
 
 *.json
-test.py
-test001.py
+*_test.py
+/test
