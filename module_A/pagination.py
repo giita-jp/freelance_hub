@@ -1,4 +1,10 @@
-"""このモジュールの目的：次ページに進む（ページネーション）処理"""
+"""次ページに進む（ページネーション）処理を提供するユーティリティ。
+
+本モジュールは以下を提供します：
+- `_click_if_visible(driver, el)`: 要素を画面内にスクロールして安全にクリック
+- `wait_for_page_change(driver, wait, timeout)`: ページ遷移（もしくは描画更新）が完了するまで待機
+- `goto_next_page(driver, wait, logger)`: 「次へ」リンクを検出して遷移、見つからなければ `?page=N` を自動インクリメント
+"""
 
 import time
 from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
@@ -6,7 +12,24 @@ from selenium.webdriver.common.by import By
 
 
 def _click_if_visible(driver, el):
-    # この関数の目的：ページ上の要素（リンクやボタン）を安全にクリックする
+    """要素を画面中央付近にスクロールさせたうえでクリックする。
+
+    まず通常の `.click()` を試み、失敗した場合は
+    JavaScriptでの `arguments[0].click()` をフォールバックとして試す。
+
+    Args:
+        driver (WebDriver): Selenium の WebDriver インスタンス。
+        el (WebElement): クリック対象の要素。
+
+    Returns:
+        bool: クリックできた場合は True、いずれの方法でも失敗した場合は False。
+
+    Notes:
+        - ビューポート外の要素や、ヘッダーに隠れている要素に対して
+            直接 `.click()` を行うと例外になることがあるため、
+            事前に `scrollIntoView({block: 'center'})` で中央へ移動します。
+        - それでも失敗する場合の対策として、最後に JS クリックを試みています。
+    """
     try:
         # 要素 el がブラウザ画面の中央に見えるようにスクロール
         driver.execute_script("arguments[0].scrollIntoView({block: 'center'})", el)
@@ -21,7 +44,26 @@ def _click_if_visible(driver, el):
 
 
 def wait_for_page_change(driver, wait, timeout: int = 10):
-    # この関数の目的：ページ遷移が完了するまで待つ
+    """ページ遷移（URLの変化）または描画更新が落ち着くまで軽く待機する。
+
+    まず現在URLを記録し、一定時間の間に URL が変化したら遷移完了とみなす。
+    SPA（Single Page Application）で URL が変わらないケースに備えて、
+    最後に `presence_of_element_located(("css selector", "body"))` で
+    軽い待機を行う。
+
+    Args:
+        driver (WebDriver): Selenium の WebDriver インスタンス。
+        wait (WebDriverWait): Selenium の WebDriverWait インスタンス。
+        timeout (int, optional): URL 変化を待つ最大秒数。デフォルト 10 秒。
+
+    Returns:
+        None
+
+    Notes:
+        - 厳密なネットワークアイドルやフレームワーク固有の
+            「描画完了」を待つものではありません。実装を軽量に保つため、
+            URL変化 or bodyの presence を用いた簡易待機です。
+    """
     old_url = driver.current_url
     end = time.time() + timeout
     time.sleep(0.3)
@@ -40,7 +82,29 @@ def wait_for_page_change(driver, wait, timeout: int = 10):
 
 
 def goto_next_page(driver, wait, logger=None) -> bool:
-    # この関数の目的：「次ページ」を探してクリック、またはURLを書き換えて進む
+    """次ページへ遷移する。
+
+    手順は以下の優先順で試行する：
+        A) よくある「次へ」候補の CSS セレクタ群を走査し、クリック遷移
+        B) aタグのテキスト（「次へ」「Next」など）一致でクリック遷移（フォールバック）
+        C) 現在URLのクエリ `?page=N` を自動インクリメントして遷移（最終手段）
+
+    いずれかで遷移できた場合は True を返す。失敗した場合は False。
+
+    Args:
+        driver (WebDriver): Selenium の WebDriver インスタンス。
+        wait (WebDriverWait): Selenium の WebDriverWait インスタンス。
+        logger (optional): ロガー。遷移手段や失敗時の情報を DEBUG で出力する。
+
+    Returns:
+        bool: 遷移に成功したら True、次ページが見つからない／遷移できない場合は False。
+
+    Notes:
+        - クリック遷移に成功した場合・URL書き換えで遷移した場合ともに、
+            `wait_for_page_change` を呼んで軽く安定待機します。
+        - 最後の C 手段（URL書き換え）は、ページャ UI が存在しない、
+            あるいは検出できない場合のための保険です。
+    """
 
     # A. 一般的な次へ候補（SeleniumのCSSとして有効なもののみ）
     candidates = [
@@ -107,7 +171,7 @@ def goto_next_page(driver, wait, logger=None) -> bool:
                 parsed.netloc,  # netloc='freelance-hub.jp'
                 parsed.path,  # path='/project/skill/7/'
                 parsed.params,  # params=''
-                new_query,  # query='page=3
+                new_query,  # query='page=3'
                 parsed.fragment,  # fragment=''
             )
         )
