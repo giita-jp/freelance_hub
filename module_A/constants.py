@@ -13,7 +13,7 @@ PATTERN_DETAIL = re.compile(r"^https://freelance-hub\.jp/project/\d+/?$")
 # .（ドット）は正規表現では「任意の1文字」を意味する
 # . を普通のドットとして扱いたいので \. と書く
 # \d+ は「数字1文字以上」という意味
-# / : 直前の文字が あってもなくてもOK
+# /? : 直前の文字が あってもなくてもOK
 # /?$ は「最後の / があってもなくてもOK」
 
 SEL_CARD = ".ProjectCard"
