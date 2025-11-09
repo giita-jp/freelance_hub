@@ -83,7 +83,6 @@ class FreelanceHubScraper:
         Raises:
             Exception: ドライバの起動やネットワーク障害等により遷移できない場合。
         """
-        # この関数の目的：指定URLを開く
         self.logger.debug("ページオープン開始")
         self.driver.get(self.base_url)
         self.logger.debug("ページオープン完了")
@@ -104,10 +103,9 @@ class FreelanceHubScraper:
                 各要素は `{"title": str, "link": Optional[str]}` 形式の辞書。
                 `link` は取得できなければ `None`。
         """
-        # この関数の目的：指定URLを開く
-        wait_cards(self.wait, SEL_CARD, logger=self.logger)
         # wait_cards() → 「カードが全て表示されるまで待機」
         # SEL_CARD → 定数で指定された .ProjectCard 要素を取得
+        wait_cards(self.wait, SEL_CARD, logger=self.logger)
         cards = self.driver.find_elements(By.CSS_SELECTOR, SEL_CARD)
         self.logger.debug(f"cards={len(cards)}")
 
