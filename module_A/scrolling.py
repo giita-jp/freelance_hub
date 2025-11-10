@@ -1,4 +1,9 @@
-"""モジュールの目的：ページを最下部まで何度かスクロールして、遅延ロード（Lazy Loading） の要素（カードなど）をすべて読み込ませる"""
+"""モジュールの目的：ページを最下部まで何度かスクロールして、遅延ロード（Lazy Loading） の要素（カードなど）をすべて読み込ませる
+
+本モジュールは以下を提供します：
+- `scroll_to_load(driver, rounds, sleep_sec, logger)`: ページを何度もスクロールして全てのカードを読み込む
+- `wait_cards(wait, sel_card, logger): ページ遷移（URLの変化）または描画更新が落ち着くまで軽く待機する
+"""
 
 import time
 from selenium.webdriver.common.by import By
